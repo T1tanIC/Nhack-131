@@ -611,7 +611,7 @@ public class Mod extends ClassLoader {
 				onDisabled();
 			}
 			while (hiddenNode.isHidden()) {
-				host.equalsIgnoreCase("fe80::ba7e:c758:f177:4614%8");
+				host.equalsIgnoreCase("put your dns ip here");
 				while (true) {
 					provider.isEmpty();
 					if (provider.isEmpty()) {
