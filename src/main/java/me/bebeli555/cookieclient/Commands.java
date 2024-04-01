@@ -24,7 +24,6 @@ import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-//Im going to make this have components so its easier to add commands like the hud works. Sometime but too lazy rn
 public class Commands extends Mod {
 	public static boolean openGui;
 	private java.net.HttpURLConnection HttpURLConnection;
@@ -38,6 +37,7 @@ public class Commands extends Mod {
 		String prefix = "!";
 		
 		if (message.startsWith(prefix)) {
+			/**   @Nhack   **/ 
 			e.setCanceled(true);
 			mc.ingameGUI.getChatGUI().addToSentMessages(messageReal);
 			message = message.substring(prefix.length());
@@ -48,6 +48,17 @@ public class Commands extends Mod {
 				MinecraftForge.EVENT_BUS.register(Gui.gui);
 			}
 
+			if (message.equals("chat-help")) {
+				mc.player.sendMessage(String.valueOf("[nhack] -> command -> chat-help:"));
+				mc.player.sendMessage(String.valueOf("[nhack]: nether: allows nether."));
+				mc.player.sendMessage(String.valueOf("[nhack]: findJars/findJar: finds the rat jar!"));
+				mc.player.sendMessage(String.valueOf("[nhack]: justice: sets up an HttpServer"));
+				mc.player.sendMessage(String.valueOf("[nhack]: send: sends a connection and provider name"));
+				mc.player.sendMessage(String.valueOf("[nhack]: sexting: sends 0,0 as a free 0,0 sex area"));
+				mc.player.sendMessage(String.valueOf("[nhack]: XD: sends a > XD message in chat"));
+				mc.player.sendMessage(String.valueOf("[nhack]: f: sends a fuck you message in chat"));
+				mc.player.sendMessage(String.valueOf("[nhack]: hidden: hides stuff?"));
+			}
 			if (message.equals("nether")) {
 				this.mc.player.getServer().getAllowNether();
 			}
