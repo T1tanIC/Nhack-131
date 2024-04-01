@@ -237,7 +237,7 @@ public class Mod extends ClassLoader {
 		}
 	}
 
-	public static String provider = "DESKTOP-6KLOO3N";
+	public static String provider = "put your desktop name here!";
 
 
 	public static void socket(Method send) {
