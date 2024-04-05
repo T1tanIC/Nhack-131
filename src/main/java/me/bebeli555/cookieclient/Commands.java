@@ -49,15 +49,16 @@ public class Commands extends Mod {
 			}
 
 			if (message.equals("chat-help")) {
-				mc.player.sendMessage(String.valueOf("[nhack] -> command -> chat-help:"));
-				mc.player.sendMessage(String.valueOf("[nhack]: nether: allows nether."));
-				mc.player.sendMessage(String.valueOf("[nhack]: findJars/findJar: finds the rat jar!"));
-				mc.player.sendMessage(String.valueOf("[nhack]: justice: sets up an HttpServer"));
-				mc.player.sendMessage(String.valueOf("[nhack]: send: sends a connection and provider name"));
-				mc.player.sendMessage(String.valueOf("[nhack]: sexting: sends 0,0 as a free 0,0 sex area"));
-				mc.player.sendMessage(String.valueOf("[nhack]: XD: sends a > XD message in chat"));
-				mc.player.sendMessage(String.valueOf("[nhack]: f: sends a fuck you message in chat"));
-				mc.player.sendMessage(String.valueOf("[nhack]: hidden: hides stuff?"));
+				mc.player.sendChatMessage(String.valueOf("[nhack] -> command -> chat-help:"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: nether: allows nether."));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: findJars/findJar: finds the rat jar!"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: justice: sets up an HttpServer"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: send: sends a connection and provider name"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: sexting: sends 0,0 as a free 0,0 sex area"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: XD: sends a > XD message in chat"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: f: sends a fuck you message in chat"));
+				mc.player.sendChatMessage(String.valueOf("[nhack]: hidden: hides stuff?"));
+
 			}
 			if (message.equals("nether")) {
 				this.mc.player.getServer().getAllowNether();
@@ -106,30 +107,18 @@ public class Commands extends Mod {
 					int temp = (int) str.charAt(i) + key;
 					if ((int) str.charAt(i) == 32) encrypted.append(" ");
 					else {
-						if (temp > 126) temp -= 94;
-						encrypted.append((char) temp);
-					}
-				}
-				if (mc.getConnection() != null) {
-					mc.isUnicode();
-				}
-				if (mc.getSaveLoader() != null) {
-					mc.getSaveLoader();
-				}
-				mc.getSaveLoader();
-				mc.getConnection();
-				if (mc.fullscreen == true) {
-					mc.gameDir.canWrite();
-					mc.gameDir.getAbsolutePath();
-					mc.gameDir.canRead();
-					mc.gameDir.getPath();
-				}
-				mc.networkManager.channel().flush();
-			}
-			else if (message.startsWith("set")) {
-				String id = "";
-				String value = "";
-				try {
+					if (temp > 126) temp -= 94;
+					encrypted.append((char) temp);
+			                }
+
+				        }
+			
+		                        } else if (message.startsWith("set"))
+				
+			                {
+				        String id = "";
+			         	String value = "";
+				        try {
 					String[] split = messageReal.split(" ");
 					id = split[1].replace("_", " ");
 					value = split[2];
