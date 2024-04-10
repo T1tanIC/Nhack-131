@@ -1,9 +1,9 @@
 # Nhack Dev Build
 Made by MacTonight4967!
 @Pryrobites Work!
-
-# Updates:
-
+# Updates [
+# v1.01 
+# [
 # 1.01
 Anvil Exploit Added! MixinWeather! Fixxed Gradle Errors
 
@@ -15,3 +15,5 @@ EnderPearl Added! Fixxed ArrayList Error!
 # 1.03
 Implemented HellTp!
 Some other featured Hacks!
+# ]
+# ]
