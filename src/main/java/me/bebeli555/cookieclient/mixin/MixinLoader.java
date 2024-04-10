@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 public class MixinLoader implements IFMLLoadingPlugin {
     public MixinLoader () {
         MixinBootstrap.init();
-        Mixins.addConfigurations("mixins.cookieclient.json", "mixins.baritone.json");
+        Mixins.addConfigurations("mixins.nhack.json", "mixins.baritone.json");
         MixinEnvironment.getDefaultEnvironment().setObfuscationContext("searge");
     }
 
