@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.01"
+version = "1.3.1"
 group = "me.bebeli555.cookieclient"
 archivesBaseName = "nhack"
 
@@ -98,13 +98,13 @@ processResources {
         exclude 'mcmod.info'
     }
 
-    rename '(.+_at.cfg)', 'META-INF/$1'
+    rename '(nhack_at.cfg)', 'META-INF/$1'
 }
 
 jar {
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.nhack.json',
+                'MixinConfigs': 'mixins.nhack.refmap.json',
                 'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 'FMLCorePluginContainsFMLMod': 'true',
@@ -117,7 +117,7 @@ jar {
 
 mixin {
     defaultObfuscationEnv searge
-    add sourceSets.main, "mixins.nhack.refmap.json"
+    add sourceSets.main, "mixins.nhack.json"
 }
 
 shadowJar {
