@@ -46,6 +46,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
@@ -86,9 +87,7 @@ public class AutoCrystal extends Mod {
     	public static Setting renderFillBoxColor = new Setting(renderFillBox, Mode.INTEGER, "Color", 0x3600ffbf, "Color for the box in hex with alpha");
     public static Setting boundingBox = new Setting(Mode.BOOLEAN, "BoundingBox", true, "Renders bounding box around the place / break spot", "Like the corners", "If its breaking then its red and placing is green");
     	
-    public AutoCrystal() {
-        super(Group.COMBAT, "AutoCrystal", "Places and destroyes crystals", "In attempt to kill target");
-    }
+
 
     @Override
     public void onDisabled() {
@@ -96,9 +95,6 @@ public class AutoCrystal extends Mod {
     	breakPos = null;
         remainingTicks = 0;
         rotating = false;
-        lastPlaceOrBreak.reset();
-        removeVisualTimer.reset();
-        checkPlacedTimer.reset();
         attackedCrystals.clear();
         placeLocations.clear();
     	placedCrystals.clear();
@@ -137,7 +133,10 @@ public class AutoCrystal extends Mod {
         
         return true;
     }
-    
+    public AutoCrystal() {
+        super(Group.COMBAT, "AutoCrystal", "Places and destroyes crystals", "In attempt to kill target");
+    }
+
     /*
      * Returns nearest crystal to an entity, if the crystal is not null or dead
      * @entity - entity to get smallest distance from
@@ -191,8 +190,6 @@ public class AutoCrystal extends Mod {
     	if (pauseIfHittingBlock.booleanValue() && mc.playerController.isHittingBlock || pauseWhileEating.booleanValue() && mc.player.isHandActive() && mc.player.getHeldItemMainhand().getItem() instanceof ItemFood) {
     		if (rotating) {
     			rotating = false;
-    			breakPos = null;
-    			placePos = null;
     			RotationUtil.stopRotating();
     		}
     		
@@ -215,8 +212,6 @@ public class AutoCrystal extends Mod {
     	//Stop rotating if we havent destroyed or placed any crystals recently
     	if (rotating && lastPlaceOrBreak.hasPassed(500)) {
     		rotating = false;
-    		placePos = null;
-    		breakPos = null;
     		RotationUtil.stopRotating();
     	}
     	
@@ -268,7 +263,7 @@ public class AutoCrystal extends Mod {
                 
             	//If entity is far away then dont bother calculating stuff for it
             	if (BlockUtil.distance(getPlayerPos(), entity.getPosition()) > 22) {
-            		continue;
+                    break;
             	}
             	
                 //Store this as a variable for faceplace per player
@@ -299,30 +294,32 @@ public class AutoCrystal extends Mod {
                 if (target.isDead || target.getHealth() + target.getAbsorptionAmount() <= 0.0f) {
                     return;
                 }
-                
+
                 //Ensure we have place locations
                 if (!placeLocations.isEmpty()) {
-                    //Store this as a variable for faceplace per player
-                    double minDamage = minDmg.doubleValue();
-                    
-                    //Check if players health + gap health is less than or equal to faceplace, then we activate faceplacing
-                    if (target.getHealth() + target.getAbsorptionAmount() <= facePlace.doubleValue()) {
-                        minDamage = 1f;
-                    }
-                    
-                    //Iterate this again, we need to remove some values that are useless, since we iterated all players
-                    for (BlockPos pos : placeLocations) {
-                        //Make sure the position will still deal enough damage to the player
-                        float calculatedDamage = CrystalUtil.calculateDamage(pos, target);
-                     
-                        //Remove if this doesnt
-                        if (calculatedDamage < minDamage) {
-                            placeLocations.remove(pos);
+                    while (true) {
+                        //Store this as a variable for faceplace per player
+                        double minDamage = minDmg.doubleValue();
+
+                        //Check if players health + gap health is less than or equal to faceplace, then we activate faceplacing
+                        if (target.getHealth() + target.getAbsorptionAmount() <= facePlace.doubleValue() + facePlace.hashCode()) {
+                            minDamage = 1650f;
                         }
+
+                        //Iterate this again, we need to remove some values that are useless, since we iterated all players
+                        for (BlockPos pos : placeLocations) {
+                            //Make sure the position will still deal enough damage to the player
+                            float calculatedDamage = CrystalUtil.calculateDamage(pos, target);
+
+                            //Remove if this doesnt
+                            if (calculatedDamage < minDamage) {
+                                placeLocations.remove(pos);
+                            }
+                        }
+
+                        //At this point, the place locations list is in asc order, we need to reverse it to get to desc
+                        Collections.reverse(placeLocations);
                     }
-                    
-                    //At this point, the place locations list is in asc order, we need to reverse it to get to desc
-                    Collections.reverse(placeLocations);
                 }
             }
         }
