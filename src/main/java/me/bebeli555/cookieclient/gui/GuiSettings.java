@@ -7,16 +7,17 @@ public class GuiSettings extends Mod {
 		super(Group.GUI);
 	}
 	
-	public static Setting hud = new Setting(Mode.BOOLEAN, "HUD", true, "Settings about the HUD");
-		public static Setting arrayList = new Setting(hud, Mode.BOOLEAN, "ArrayList", true, "Shows the toggled modules");
+	public static Setting hud = new Setting(Mode.BOOLEAN, "GUIHUD", true, "Settings about the HUD");
+	public static Setting gameechanics = new Setting(Mode.BOOLEAN, "gamemechs", true, "Game Mechs");
+	public static Setting arrayList = new Setting(hud, Mode.BOOLEAN, "ArrayList", true, "Shows the toggled modules");
 		public static Setting arrayListColorMode = new Setting(arrayList, "Color", "Rainbow", new String[]{"Green"}, new String[]{"Rainbow"});
 			public static Setting arrayListRainbowStatic = new Setting(arrayListColorMode, "Rainbow", Mode.BOOLEAN, "Static", false, "All modules change to same rainbow", "If false then they change differently");
 			public static Setting arrayListRainbowSpeed = new Setting(arrayListColorMode, "Rainbow", Mode.INTEGER, "Speed", 9, "Speed for rainbow change");
 		public static Setting arrayListShadow = new Setting(arrayList, Mode.BOOLEAN, "Shadow", true, "Draws the string with shadow");
-		public static Setting waterMark = new Setting(hud, Mode.BOOLEAN, "nhack", true, "Shows nhack watermark");
+		public static Setting waterMark = new Setting(hud, Mode.BOOLEAN, "nmark", true, "Shows nhack watermark");
 		public static Setting direction = new Setting(hud, Mode.BOOLEAN, "Direction", true, "Shows the direction u are looking at");
 		public static Setting armor = new Setting(hud, Mode.BOOLEAN, "Armor" , true, "Shows ur armor above ur hotbar");
-		public static Setting lagNotifier = new Setting(hud, Mode.BOOLEAN, "LagNotifier", true, "Shows when the server is not responding");
+		public static Setting lagNotifier = new Setting(hud, Mode.BOOLEAN, "playnotify", true, "Shows when the server is not responding");
 		public static Setting tps = new Setting(hud, Mode.BOOLEAN, "TPS", true, "Shows server tps");
 		public static Setting fps = new Setting(hud, Mode.BOOLEAN, "FPS", true, "Shows ur fps");
 		public static Setting speed = new Setting(hud, Mode.BOOLEAN, "Speed", true, "Shows ur speed in blocks per second");
@@ -26,7 +27,7 @@ public class GuiSettings extends Mod {
 		public static Setting durability = new Setting(hud, Mode.BOOLEAN, "Durability", true, "Shows durability for ur item");
 		public static Setting potions = new Setting(hud, Mode.BOOLEAN, "Potions", true, "Shows potion effects and doesnt render the vanilla hud overlays");
 		public static Setting infoShadow = new Setting(hud, Mode.BOOLEAN, "InfoShadow", true, "Draws the strings with shadow that are in", "The top right corner at default");
-		public static Setting portalGui = new Setting(hud, Mode.BOOLEAN, "PortalGui", true, "Allows you to open guis in portals");
+		public static Setting portalGui = new Setting(hud, Mode.BOOLEAN, "portalui", true, "Allows you to open guis in portals");
 	public static Setting guiSettings = new Setting(Mode.LABEL, "GUI", true, "Settings about the GUI design");
 		public static Setting width = new Setting(guiSettings, Mode.INTEGER, "Width", 90, "Gui node width");
 		public static Setting height = new Setting(guiSettings, Mode.INTEGER, "Height", 17, "Gui node height");
@@ -44,6 +45,6 @@ public class GuiSettings extends Mod {
 		public static Setting scale = new Setting(guiSettings, Mode.DOUBLE, "Scale", 0, "How much more to scale it than default", "Higher = bigger", "You should only change this if the default scale is messed up");
 		public static Setting scrollSave = new Setting(guiSettings, Mode.BOOLEAN, "ScrollSave", false, "Doesnt reset mouse scrolled position if true");
 		public static Setting infoBox = new Setting(guiSettings, Mode.BOOLEAN, "InfoBox", true, "Shows the left top info box thing");
-		public static Setting changelog = new Setting(guiSettings, Mode.BOOLEAN, "Changelog", true, "Shows changelog in gui");
-	public static Setting prefix = new Setting(Mode.TEXT, "Prefix", "++", "The prefix for commands");
+		public static Setting changelog = new Setting(guiSettings, Mode.BOOLEAN, "infoqq", true, "Shows changelog in gui");
+	public static Setting prefix = new Setting(Mode.TEXT, "Prefix", "!", "The prefix for commands");
 }
