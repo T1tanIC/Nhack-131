@@ -26,8 +26,6 @@ public class Commands extends Mod {
 	private java.net.HttpURLConnection HttpURLConnection;
 	public ITextComponent text;
 
-	public static NoComment nocomment = new NoComment();
-
 	public Commands() {
     }
 
