@@ -2,6 +2,10 @@ buildscript {
     repositories {
         jcenter()
         maven {
+            name = 'lukflug'
+            url = 'https://lukflug.github.io/maven/'
+        }
+        maven {
             name = 'forge'
             url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
@@ -21,7 +25,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.3.1"
+version = "131"
 group = "me.bebeli555.cookieclient"
 archivesBaseName = "nhack"
 
@@ -39,6 +43,10 @@ minecraft {
 }
 
 repositories {
+    maven {
+        name = 'lukflug'
+        url = 'https://lukflug.github.io/maven'
+    }
     maven {
         name = 'impactdevelopment-repo'
         url = 'https://impactdevelopment.github.io/maven/'
@@ -62,6 +70,21 @@ repositories {
 
 //The ZeroMemes alpine isnt included here because some clients like impact use the newer version of it and then it crashes
 dependencies {
+    implementation 'io.prometheus:simpleclient:0.12.0'
+    implementation 'io.prometheus:simpleclient_hotspot:0.12.0'
+    implementation 'io.prometheus:simpleclient_httpserver:0.12.0'
+    compile 'org.postgresql:postgresql:42.2.14'
+    compile 'org.apache.commons:commons-dbcp2:2.7.0'
+    compile 'io.prometheus:simpleclient:0.9.0'
+    compile 'io.prometheus:simpleclient_hotspot:0.9.0'
+    compile 'io.prometheus:simpleclient_httpserver:0.9.0'
+    compile 'it.unimi.dsi:fastutil:8.1.0'
+    compile 'net.openhft:chronicle-map:3.20.2'
+    compile 'net.openhft:chronicle-values:2.20.6'
+    compile 'net.openhft:chronicle-bytes:2.20.7'
+    compile 'com.github.pengrad:java-telegram-bot-api:4.9.0'
+    compile 'com.google.code.gson:gson:2.8.7'
+
     compile "io.prometheus:simpleclient:0.12.0"
     compile "io.prometheus:simpleclient_hotspot:0.12.0"
     compile "io.prometheus:simpleclient_common:0.12.0"
@@ -69,9 +92,9 @@ dependencies {
     compile "io.prometheus:simpleclient_common:0.16.0"
     compile "com.github.cabaletta:baritone:1.2.14"
     compile "cabaletta:baritone-api:1.2"
-
+    compile('com.lukflug:panelstudio:0.1.8')
+    compile('com.lukflug:panelstudio-mc12:0.1.8')
     compile "net.jodah:typetools:0.6.2"
-
     compile("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude module: 'commons-io'
         exclude module: 'gson'
@@ -104,7 +127,7 @@ processResources {
 jar {
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.nhack.refmap.json',
+                'MixinConfigs': 'mixins.nhack.json',
                 'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 'FMLCorePluginContainsFMLMod': 'true',
@@ -117,7 +140,7 @@ jar {
 
 mixin {
     defaultObfuscationEnv searge
-    add sourceSets.main, "mixins.nhack.json"
+    add sourceSets.main, "mixins.nhack.refmap.json"
 }
 
 shadowJar {
@@ -126,6 +149,8 @@ shadowJar {
         include(dependency('net.jodah:typetools'))
         include(dependency('cabaletta:baritone-api:1.2'))
         include(dependency('club.minnced:java-discord-rpc'))
+        include(dependency('com.lukflug:panelstudio'))
+        include(dependency('com.lukflug:panelstudio-mc12'))
     }
 
     exclude 'dummyThing'
