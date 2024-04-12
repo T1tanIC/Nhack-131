@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Friends extends Mod {
 	public static boolean toggled;
  	public static ArrayList<String> friends = new ArrayList<String>();
- 	public static File file = new File(Settings.path + "/Friends.txt");
+ 	public static File file = new File(Settings.path + "/Budys.txt");
  	
  	public static Setting message = new Setting(Mode.BOOLEAN, "Message", false, "/msg's the player that he has", "Been added/removed on the client");
  	
