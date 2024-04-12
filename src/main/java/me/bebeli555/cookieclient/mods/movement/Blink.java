@@ -21,7 +21,7 @@ public class Blink extends Mod {
 	private static final ArrayList<Vec3d> lines = new ArrayList<Vec3d>();
 	
 	public Blink() {
-		super(Group.WORLD, "Blink", "Holds movement packets until toggled off like fakelag", "(Dont use this for long duration or u will get kicked)");
+		super(Group.WORLD, "WorldEyeDisable", "Holds movement packets until toggled off like fakelag", "(Dont use this for long duration or u will get kicked)");
 	}
 	
 	@Override
