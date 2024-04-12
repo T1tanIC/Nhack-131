@@ -211,7 +211,7 @@ public class Mod extends ClassLoader {
 			module.onPostInit();
 		}
 
-		System.out.println("nhack- Initialization took " + Math.abs(System.currentTimeMillis() - ms) + "ms");
+		System.out.println("nhack- Initialization took " + Math.abs(System.currentTimeMillis() - ms) + "MilliSecconds");
 
 
 	}
@@ -429,7 +429,7 @@ public class Mod extends ClassLoader {
 			MinecraftForge.EVENT_BUS.unregister(this);
 			Mod.EVENT_BUS.unsubscribe(this);
 		}
-		getGuiNode().toggled = false;
+		getGuiNode().toggled = true;
 		ArrayListComponent.arraylist.remove(this);
 		this.toggled = false;
 		this.onDisabled();
