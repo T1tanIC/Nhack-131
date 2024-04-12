@@ -40,7 +40,7 @@ public class ElytraFly extends Mod {
 		public static Setting waitAmount = new Setting(autoTakeoff, Mode.INTEGER, "WaitAmount", 500, "How long to wait between sending elytra open packets in ms");
 		
 	public ElytraFly() {
-		super(Group.MOVEMENT, "ElytraFly", "Allows you to fly faster and better with elytras");
+		super(Group.GAMEMECHANICS, "FlightAlternitive", "Allows you to fly faster and better with elytras");
 	}
 	
 	@Override
