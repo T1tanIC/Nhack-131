@@ -14,10 +14,10 @@ public class GuiSettings extends Mod {
 			public static Setting arrayListRainbowStatic = new Setting(arrayListColorMode, "Rainbow", Mode.BOOLEAN, "Static", false, "All modules change to same rainbow", "If false then they change differently");
 			public static Setting arrayListRainbowSpeed = new Setting(arrayListColorMode, "Rainbow", Mode.INTEGER, "Speed", 9, "Speed for rainbow change");
 		public static Setting arrayListShadow = new Setting(arrayList, Mode.BOOLEAN, "Shadow", true, "Draws the string with shadow");
-		public static Setting waterMark = new Setting(hud, Mode.BOOLEAN, "nmark", true, "Shows nhack watermark");
+		public static Setting waterMark = new Setting(hud, Mode.BOOLEAN, "Nmark", true, "Shows nhack watermark");
 		public static Setting direction = new Setting(hud, Mode.BOOLEAN, "Direction", true, "Shows the direction u are looking at");
 		public static Setting armor = new Setting(hud, Mode.BOOLEAN, "Armor" , true, "Shows ur armor above ur hotbar");
-		public static Setting lagNotifier = new Setting(hud, Mode.BOOLEAN, "Playnotify", true, "Shows when the server is not responding");
+		public static Setting lagNotifier = new Setting(hud, Mode.BOOLEAN, "PlayNotify", true, "Shows when the server is not responding");
 		public static Setting tps = new Setting(hud, Mode.BOOLEAN, "TPS", true, "Shows server tps");
 		public static Setting fps = new Setting(hud, Mode.BOOLEAN, "FPS", true, "Shows ur fps");
 		public static Setting speed = new Setting(hud, Mode.BOOLEAN, "Speed", true, "Shows ur speed in blocks per second");
