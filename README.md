@@ -18,11 +18,11 @@ Implemented HellTp!
 Some other featured Hacks!
 # ]
 
-# v1.3.1 
+# r131
 # [
 # 1
 Implemented mcmod.info.
 Added My Github To The mcmod.info 
 Added Authers to the mcmod.info
-
+Added autocrystal faceplace duplication in combat for more damage of course if you are using Future. AnyOther Clients have not been tested with the AutoCrystal FacePlace Because I don't use Scetchy Hacked Clients.
 # ]
