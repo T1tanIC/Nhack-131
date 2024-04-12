@@ -144,7 +144,7 @@ public class Mod extends ClassLoader {
 	public static final String MODID = "nhack";
 	public static final String NAME = "nhack";
 	public static final String VERSION = "131";
-	public static final String DISCORD = "https://discord.gg/JPy2AYsU";
+	public static final String DISCORD = "";
 
 	public static Minecraft mc = Minecraft.getMinecraft();
 	public static final EventBus EVENT_BUS = new EventManager();
