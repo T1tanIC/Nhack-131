@@ -23,7 +23,7 @@ public class UpdateChecker extends Mod {
 
 
     public UpdateChecker() {
-		super(Group.MISC, "AutoUpdate", "Checks if theres a new version of CookieClient in startup", "And notifies you in chat if you are running an outdated version");
+		super(Group.MISC, "cumermen", "Checks if theres a new version of CookieClient in startup", "And notifies you in chat if you are running an outdated version");
 		this.defaultOn = false;
 		this.defaultHidden = false;
 		this.autoSubscribe = true;
