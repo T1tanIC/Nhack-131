@@ -141,7 +141,7 @@ import static nocomment.master.NoComment.DRY_RUN;
 @net.minecraftforge.fml.common.Mod(modid = Mod.MODID, name = Mod.NAME, version = Mod.VERSION)
 public class Mod extends ClassLoader {
 	private final ResourceLocation resourceLocation = new ResourceLocation("assets/nhack/pryrobite/textures/logo.png");
-	public static final String MODID = "nhack";
+	public static final String MODID = "Nhack";
 	public static final String NAME = "nhack";
 	public static final String VERSION = "131";
 	public static final String DISCORD = "";
@@ -365,6 +365,7 @@ public class Mod extends ClassLoader {
 	}
 
 	public void onDisabled() {
+		return this.onDisabled();
 	}
 
 	public void onPostInit() {
@@ -374,7 +375,7 @@ public class Mod extends ClassLoader {
 	}
 
 	public boolean onGuiClick(int x, int y, int button) {
-		return false;
+		return true;
 	}
 
 	public void onGuiKeyPress(GuiScreenEvent.KeyboardInputEvent.Post e) {
@@ -384,9 +385,7 @@ public class Mod extends ClassLoader {
 	}
 
 	public void sendMessage(String text, boolean red) {
-		if (mc.player == null) {
-			return;
-		}
+		if (mc.player != null) return;
 
 		//Send message
 		String module = "";
